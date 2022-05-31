@@ -4,7 +4,7 @@ O pacote de ferramentas WARM-GIS Tools consiste num conjunto de operações que 
 
 ## Instruções de instalação
 
-O modelo WARM-GIS Tools é um plugin que é adicionado ao Quantum GIS depois que o mesmo já está instalado no computador. Para instalar o plugin no Quantum GIS, siga os passos abaixo:
+O modelo WARM-GIS Tools é um plugin que é adicionado ao software Quantum GIS depois que o mesmo já está instalado no computador. Para instalar o plugin no Quantum GIS, siga os passos abaixo:
 
 1º) Neste repositório, clique em "Code", em seguida em "Download ZIP" e faça download do plug-in.
 
