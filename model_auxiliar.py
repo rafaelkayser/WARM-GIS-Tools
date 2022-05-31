@@ -2,7 +2,7 @@
 """
 Created on Mon Apr 18 13:47:10 2022
 
-@author: rafae
+@author: Rafael Kayser
 """
 
 from . import shapefile
