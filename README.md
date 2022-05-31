@@ -22,4 +22,6 @@ O modelo WARM-GIS Tools é um plugin que é adicionado ao software QGIS depois q
 
 ## Referências
 
+[KAYSER, R. H. B.; Tschiedel, A. F.; Cybis, F. A.; COLLISCHONN, W. Comparativo entre o modelo QUAL 2K e uma metodologia simplificada de modelagem da qualidade da água integrada a um ambiente de Sistema de Informações Geográficas: Estudo de Caso na Bacia do Rio Macaé. In: XXII SIMPÓSIO BRASILEIRO DE RECURSOS HÍDRICOS, 2017, Florianópolis. Anais do XXII SBRH. ABRH, 2017](https://www.researchgate.net/publication/322603357_COMPARATIVO_ENTRE_O_MODELO_QUAL2K_E_UMA_METODOLOGIA_SIMPLIFICADA_DE_MODELAGEM_DA_QUALIDADE_DA_AGUA_INTEGRADA_A_UM_AMBIENTE_DE_SISTEMA_DE_INFORMACOES_GEOGRAFICAS_ESTUDO_DE_CASO_NA_BACIA_DO_RIO_MACAE)
+
 
