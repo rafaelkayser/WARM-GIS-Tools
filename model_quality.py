@@ -2,7 +2,7 @@
 """
 Created on Thu Apr  7 13:44:22 2022
 
-@author: rafae
+@author: Rafael Kayser
 """
 
 import os, sys, datetime
@@ -516,6 +516,14 @@ class Quality_Model:
         self.d_opt=np.empty((nd, nt))
         
         
+        d_enqbod=np.empty((nd, nt))
+        d_enqdo=np.empty((nd, nt))
+        d_enqpt=np.empty((nd, nt))
+        d_enqcol=np.empty((nd, nt))
+        d_enqna=np.empty((nd, nt))
+        d_enqtot=np.empty((nd, nt))
+        
+        
         teste=np.empty((nd, nt))
         
 
@@ -886,7 +894,7 @@ class Quality_Model:
                 
                 #NITRIFICAÇÃO
 
-                RO2Namon = 4.57
+                RO2Namon = 4.3
                 knitr=0.6
                 fnitr = 1 - np.exp(-knitr* d_mdo[idr,it])
                 
@@ -1079,9 +1087,68 @@ class Quality_Model:
                 if self.d_wbal[idr,it]<0:
                     self.d_wbal[idr,it]=0
                     
+                    
+            #8 - Enquadramento
+            
+            for it in range(nt):
 
-        return self.d_obod, self.d_odo, self.d_ocol,self.d_opo,self.d_opi, self.d_ono,self.d_ona, self.d_onn, self.d_opt, self.d_qout, self.d_wbal
-        #return self.d_obod, self.d_odo, self.d_ocol,self.d_opo,self.d_opi, self.d_ono,self.d_ona, self.d_onn, self.d_opt, self.d_qout, d_qmix    
+                #BOD
+                if self.d_obod[idr,it]<3:
+                    d_enqbod[idr,it]=1
+                elif self.d_obod[idr,it]<5:
+                    d_enqbod[idr,it]=2
+                elif self.d_obod[idr,it]<10:
+                    d_enqbod[idr,it]=3
+                else:
+                    d_enqbod[idr,it]=4
+                    
+                #DO
+                if self.d_odo[idr,it]>6:
+                    d_enqdo[idr,it]=1
+                elif self.d_odo[idr,it]>5:
+                    d_enqdo[idr,it]=2
+                elif self.d_odo[idr,it]>4:
+                    d_enqdo[idr,it]=3
+                else:
+                    d_enqdo[idr,it]=4
+
+                #COL
+                if self.d_ocol[idr,it]<200:
+                    d_enqcol[idr,it]=1
+                elif self.d_ocol[idr,it]<1000:
+                    d_enqcol[idr,it]=2
+                elif self.d_ocol[idr,it]<2500:
+                    d_enqcol[idr,it]=3
+                else:
+                    d_enqcol[idr,it]=4
+            
+
+                #PT
+                if self.d_opt[idr,it]<0.1:
+                    d_enqpt[idr,it]=1
+                elif self.d_opt[idr,it]<0.15:
+                    d_enqpt[idr,it]=3
+                else:
+                    d_enqpt[idr,it]=4
+
+
+                #NA
+                if self.d_ona[idr,it]<3.7:
+                    d_enqna[idr,it]=1
+                elif self.d_ona[idr,it]<13.3:
+                    d_enqna[idr,it]=3
+                else:
+                    d_enqna[idr,it]=4
+                    
+                #TOTAL
+                
+                a = np.array([d_enqbod[idr,it],d_enqdo[idr,it],d_enqpt[idr,it],d_enqcol[idr,it],d_enqna[idr,it]])
+                d_enqtot[idr,it] = round(np.percentile(a, 80)) # return 50th percentile, e.g median.
+                
+ 
+
+        return self.d_obod, self.d_odo, self.d_ocol,self.d_opo,self.d_opi, self.d_ono,self.d_ona, self.d_onn, self.d_opt, self.d_qout, self.d_wbal, d_enqbod,d_enqdo,d_enqpt,d_enqcol,d_enqna, d_enqtot
+  
         
         
     def graph_profile(self, inp_codbas, inp_codjus, par, with_obs, with_enq, with_text, path_stations=None, path_obs=None):
@@ -1172,12 +1239,15 @@ class Quality_Model:
         l_no_tr_sim=[]
         l_na_tr_sim=[]
         l_nn_tr_sim=[]
+        
+        
+        #localizar trecho à jusante do codigo de jusante informado 
+        ind_jus = np.array(np.where(self.d_codbas == inp_codjus))
+        cod_jusjus = self.d_codjus[ind_jus[0,0]]
 
-        
-        
         i=0
 
-        while (inp_codjus != codjus):
+        while (cod_jusjus != codjus):
 
 
             ind = (np.where(self.d_codbas == inp_codbas))
