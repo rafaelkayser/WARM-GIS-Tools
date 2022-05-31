@@ -19,3 +19,7 @@ O modelo WARM-GIS Tools é um plugin que é adicionado ao software Quantum GIS d
 
 ## Manual teórico-prático da ferramenta e arquivos de exemplos
 [Manual teórico-prático](https://github.com/rafaelkayser/WARM-GIS_Tools/tree/main/manual)
+
+## Referências
+
+
