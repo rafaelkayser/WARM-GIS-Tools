@@ -24,16 +24,6 @@
 
 
 
-'''
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
-# Initialize Qt resources from file resources.py
-from .resources import *
-'''
-
-
-
 import os, sys, datetime
 import matplotlib
 import matplotlib.pyplot as plt
@@ -162,11 +152,6 @@ class WARMGIS_Tools:
         self.wid_open_proj.btn_sel_mini.clicked.connect(self.fc_input_mini)
         
         
-        
-        
-
-
-        
         #WITHDRAWALS
         self.wid_open_proj.btn_sel_wit.clicked.connect(self.fc_input_wit)
         
@@ -241,11 +226,6 @@ class WARMGIS_Tools:
         self.wid_qual_obs.psh_confirm_obs.clicked.connect(self.fc_path_qual_obs)        
         
         
-        
-        
-        
-        
-        
         ###############################################################################
         
         # this QGIS tool emits as QgsPoint after each click on the map canvas
@@ -262,9 +242,6 @@ class WARMGIS_Tools:
         for i in self.plugdir:
             if i == '\\':
                 self.plugdir = self.plugdir.replace('\\', '/')
-        
-        
-        
         
         
     def fc_path_csv(self):
@@ -613,54 +590,6 @@ class WARMGIS_Tools:
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
             
-
-
-
-    
-
-        '''
-        canvas = iface.mapCanvas()
-        feature_identifier = QgsMapToolIdentifyFeature(canvas)
-
-        # indicates the layer on which the selection will be done
-        feature_identifier.setLayer(vlayer)
-
-        # use the callback as a slot triggered when the user identifies a feature
-        feature_identifier.featureIdentified.connect(callback)
-
-        # activation of the map tool
-        canvas.setMapTool(feature_identifier)            
-        '''   
-            
-            
-            
-            
-
-    '''
-    def clic_wit(self):
-        
-       # QMessageBox.information(self.iface.mainWindow(), 'codbas', 'teste')
-        
-        
-        def onFeatureIdentified(feature):
-            fid = feature.id()
-            #print ("feature selected : " + str(fid))
-            QMessageBox.information(self.iface.mainWindow(), 'codbas', str(fid))
-
-        layer = self.lyr_drl
-    
-        #mc=iface.mapCanvas()
-        mapTool = QgsMapToolIdentifyFeature(self.canvas)
-        mapTool.setLayer(layer)
-        self.canvas.setMapTool(mapTool)
-        mapTool.featureIdentified.connect(onFeatureIdentified)
-        '''
-        
-
-
-
-
-            
             
 # A PARTIR DAQUI, DESENVOLVIMENTO PROPRIO ----------------------------------------------------------------- 
             
@@ -716,13 +645,6 @@ class WARMGIS_Tools:
                 self.dockwidget.treeWidget.findItems('Run simulation', Qt.MatchRecursive,0)):
             self.wid_run_qual.show()            
 
-
-
-
-            
-            
-     #   if str('[' + str(self.dockwidget.treeWidget.currentItem()) + ']') == str(
-     #           self.dockwidget.treeWidget.findItems('About', Qt.MatchRecursive,0)):
 
 
         if str('[' + str(self.dockwidget.treeWidget.currentItem()) + ']') == str(
@@ -806,20 +728,8 @@ class WARMGIS_Tools:
                 self.dockwidget.treeWidget.findItems('Nitrate', Qt.MatchRecursive,0)):
             self.fc_render_qual('Nn')            
             
-            
-            
-            
-            
-            
-            
-            
-            #self.wid_run_balance.connect(self.fc_render_bal)
-            #self.dockwidget.treeWidget.clicked.connect(self.fc_render_bal)
-            #self.dockwidget.treeWidget.clicked.disconnect(self.fc_render_bal)
 
-            
-            
-            
+             
     #--------------------------------------------------------------------------------
     def fc_input_drl(self):
 
@@ -833,13 +743,6 @@ class WARMGIS_Tools:
                 name = name.replace('\\', '/')
 
         self.wid_open_proj.lin_path_drl.setText(name)
-        
-        
-        
-     
-        
-        
-        
         
 
     # ----------------------------------------------------------------------------
@@ -952,10 +855,6 @@ class WARMGIS_Tools:
 
             self.wid_open_proj.lin_path_efl.setText(name)      
 
-        #name = QFileDialog.getOpenFileName(parent=self.wid_open_proj, caption='Input', filter='Shapefiles (*.shp)')
-
-
-
 
     # ----------------------------------------------------------------------------
     def fc_input_res(self):
@@ -1022,12 +921,6 @@ class WARMGIS_Tools:
         self.wid_open_proj.lin_path_mini.setText(name)
         
 
-
-
-
-
-
-        
         
         # ----------------------------------------------------------------------------
     def fc_proj_save(self):
@@ -1184,7 +1077,7 @@ class WARMGIS_Tools:
         
       try:
 
-        name = QFileDialog.getOpenFileName(parent=self.wid_open_proj, caption='Input', filter='.WARM files (*.WARM)')
+        name = QFileDialog.getOpenFileName(parent=None, caption='Input', filter='.WARM files (*.WARM)')
         name = name[0]
 
         self.dir = os.path.dirname(name) + '/'
@@ -1415,13 +1308,7 @@ class WARMGIS_Tools:
         
         
         
-        d_obod, d_odo,d_ocol,d_opo,d_opi, d_ono,d_ona, d_onn, d_opt,d_qout, d_wbal = self.model_qual.run_model()
-        
-        
-
-        #file = open(str('C:/Users/rafae/OneDrive/10_warm_gis/teste3.txt'), 'w')
-        #file.write(str(data))
-        #file.close()
+        d_obod, d_odo,d_ocol,d_opo,d_opi, d_ono,d_ona, d_onn, d_opt,d_qout, d_wbal, d_enqbod,d_enqdo,d_enqpt,d_enqcol,d_enqna, d_enqtot = self.model_qual.run_model()
         
         
         
@@ -1449,10 +1336,12 @@ class WARMGIS_Tools:
             self.lyr_drl.changeAttributeValue(feat.id(), self.lyr_drl.fields().indexFromName('W_Bal_1'), float(d_wbal[i,0]))
             
             
-            
-            
-            
-            
+            self.lyr_drl.changeAttributeValue(feat.id(), self.lyr_drl.fields().indexFromName('Enq_BOD'), int(d_enqbod[i,0]))
+            self.lyr_drl.changeAttributeValue(feat.id(), self.lyr_drl.fields().indexFromName('Enq_DO'), int(d_enqdo[i,0]))
+            self.lyr_drl.changeAttributeValue(feat.id(), self.lyr_drl.fields().indexFromName('Enq_Col'), int(d_enqcol[i,0]))
+            self.lyr_drl.changeAttributeValue(feat.id(), self.lyr_drl.fields().indexFromName('Enq_Pt'), int(d_enqpt[i,0]))
+            self.lyr_drl.changeAttributeValue(feat.id(), self.lyr_drl.fields().indexFromName('Enq_Na'), int(d_enqna[i,0]))
+            self.lyr_drl.changeAttributeValue(feat.id(), self.lyr_drl.fields().indexFromName('Enq_Tot'), int(d_enqtot[i,0]))
             
             
             i = i + 1
@@ -1596,21 +1485,6 @@ class WARMGIS_Tools:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def fc_render_bal(self, n):
             
 
@@ -1618,7 +1492,7 @@ class WARMGIS_Tools:
         rangeList = []
         
         
-        wid=1
+        wid=0.5
 
         # CLASS 1
         symbol1 = QgsSymbol.defaultSymbol(self.lyr_drl.geometryType())
@@ -1690,7 +1564,7 @@ class WARMGIS_Tools:
 
     def fc_render_qual(self, par):
         
-        wid=1
+        wid=0.5
         
         
         if par == 'BOD':
@@ -2651,33 +2525,6 @@ class WARMGIS_Tools:
         QMessageBox.information(self.iface.mainWindow(), 'WARM GIS Tools', 'Users successfully inserted!')        
         
         
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ##############################################################################################################################
 ########################## CONFIGURAÇÕES DO ARQUIVO DE PARAMETROS DE QUALIDADE DE ÁGUA #######################################
@@ -2902,10 +2749,10 @@ class WARMGIS_Tools:
                     item = QTableWidgetItem(str(0.3)) #kden
                     qTable_par.setItem(row,col,item)
                 for col in [9]:
-                    item = QTableWidgetItem(str(0.5)) #vsmo
+                    item = QTableWidgetItem(str(0.1)) #vsmo
                     qTable_par.setItem(row,col,item)
                 for col in [10]:
-                    item = QTableWidgetItem(str(0.5)) #vsp
+                    item = QTableWidgetItem(str(0.05)) #vsp
                     qTable_par.setItem(row,col,item)
                 for col in [11]:
                     item = QTableWidgetItem(str(0.35)) #river vel
@@ -3368,19 +3215,6 @@ class WARMGIS_Tools:
         #discharge option
         self.q_scn = int(self.wid_qual_par.cbx_q_scn.currentText())
 
-
-
-            
-            
-        #ler arquivos de entrada 
-        
-        #path_par = 'C:/Users/rafae/OneDrive/10_warm_gis/teste_par.csv'
-        #scn_q_int = 1
-        #self.model = Quality_Model(self.lyr_drl, self.lyr_efl, self.lyr_res, path_par, scn_q_int)
-        #self.model.read_input_files()
-            
-            
-        #save_parameters_drl(self, self.lyr_drl, self.lyr_efl)
         
         self.lyr_drl = save_parameters_drl(self, self.lyr_drl)
         
@@ -3538,16 +3372,6 @@ class WARMGIS_Tools:
         
         QMessageBox.information(self.iface.mainWindow(), 'WARM-GIS Tools', 'Parameter file created successfully. Check the values calculated for each feature in the drainage line file!')
         
-
-
-            
-            
-
-            
-        #discharge option
-        #self.q_scn = int(self.wid_qual_par.cbx_q_scn.currentText())
-
-
 
 
         
