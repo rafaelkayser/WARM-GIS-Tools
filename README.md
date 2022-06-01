@@ -12,7 +12,7 @@ O modelo WARM-GIS Tools é um plugin que é adicionado ao software QGIS depois q
 
 3º) Selecione a opção “Instalar a partir do ZIP”.
 
-3º) Selecione o arquivo ZIP do plugin baixado e clique em “Instalar Complemento”.
+3º) Selecione o arquivo ZIP do plugin e clique em “Instalar Complemento”.
 
 5º) Instalado! A ferramenta estará disponível na parte superior do QGIS juntamente com outras extensões. Caso contrário, volte para “Gerenciar e Instalar Complementos” e selecione a aba “Instalados” e certifique se a caixa ao lado esteja selecionada.
 
