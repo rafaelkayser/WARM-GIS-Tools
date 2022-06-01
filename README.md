@@ -1,4 +1,4 @@
-# WARM-GIS Tools
+# WARM-GIS Tools (versão beta)
  
 O pacote de ferramentas WARM-GIS Tools consiste num conjunto de operações que visam facilitar a gestão de bacias hidrográficas em um ambiente de Sistemas de Informações Geográficas (SIG). Possibilita, a partir de uma base hidrográfica pré-definida, a inserção de dados de disponibilidade hídrica e de usos de água (retiradas, lançamentos de efluentes e reservatórios), permitindo a simulação quali-quantitativa e verificando os impactos dos usos sobre a disponibilidade e a qualidade da água. 
 
