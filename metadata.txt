@@ -5,15 +5,15 @@
 [general]
 name=WARM-GIS Tools
 qgisMinimumVersion=3.0
-description=Water Management Tools
-version=0.1
+description=Water Management Tools - product developed by HGE-IPH Research Group 
+version=1.0
 author=Rafael Kayser
 email=rafael.hbkayser@gmail.com
 
-about=Provide a brief description of the plugin and its purpose.
+about=The WARM-GIS Tools toolkit consists of a set of operations aimed at facilitating watershed management in a Geographic Information Systems (GIS) environment. It allows, from a predefined hydrographic base, the insertion of water availability data and water uses (withdrawals, effluent releases and reservoirs), allowing the qualitative-quantitative simulation and verifying the impacts of the uses on the availability and the quality of the water. 
 
 tracker=http://bugs
-repository=http://repo
+repository=github.com/rafaelkayser/WARM-GIS_Tools
 # End of mandatory metadata
 
 # Recommended items:
@@ -23,9 +23,9 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python
+tags= Water management, Quality model, Hidrology, python
 
-homepage=http://homepage
+homepage=https://www.ufrgs.br/lsh/products/warm-gis-tools/
 category=Plugins
 icon=icon.png
 # experimental flag
