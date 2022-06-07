@@ -19,6 +19,9 @@ from csv import reader
 
 import glob
 
+from math import sqrt
+
+
 
 ########################################################################
 
@@ -1151,7 +1154,7 @@ class Quality_Model:
   
         
         
-    def graph_profile(self, inp_codbas, inp_codjus, par, with_obs, with_enq, with_text, path_stations=None, path_obs=None):
+    def graph_profile(self, inp_codbas, inp_codjus, par, with_obs, with_enq, with_text, label_pt, with_metrics, path_stations=None, path_obs=None):
         
 
         #READ OBSERVED DATA ############################################################################################   
@@ -1240,6 +1243,13 @@ class Quality_Model:
         l_na_tr_sim=[]
         l_nn_tr_sim=[]
         
+        l_obs_med_bod=[]
+        l_obs_med_do=[]        
+        l_obs_med_col=[]
+        l_obs_med_pt=[]  
+        l_obs_med_no=[]
+        l_obs_med_na=[]  
+        l_obs_med_nn=[]
         
         #localizar trecho à jusante do codigo de jusante informado 
         ind_jus = np.array(np.where(self.d_codbas == inp_codjus))
@@ -1262,6 +1272,7 @@ class Quality_Model:
             l_nn_tr_sim.append(float(self.d_onn[ind,it]))
             
             
+            
             if (i==0):
                 l_lengh.append(float(self.d_leng[ind]))
             else:
@@ -1274,7 +1285,17 @@ class Quality_Model:
             #inserir dados de monitoramento nos trechos ------------------------------------------------------
                 
             if with_obs == True:
-            
+                
+                #inicializa variavel da media observada
+                bod_obs_m = None
+                do_obs_m = None
+                col_obs_m = None
+                pt_obs_m = None
+                no_obs_m = None
+                na_obs_m = None
+                nn_obs_m = None
+
+                
                 #verifica se tem algum codbas com monitoramento 
                 ind_cod = np.array(np.where(np.array(s_codbas) == int(inp_codbas)))
     
@@ -1325,6 +1346,15 @@ class Quality_Model:
                     l_no_sel = [float(m) for m in l_no_sel]
                     l_na_sel = [float(m) for m in l_na_sel]
                     l_nn_sel = [float(m) for m in l_nn_sel]
+                    
+                    #CALCULA MEDIAS
+                    bod_obs_m = np.median(np.array(l_bod_sel))
+                    do_obs_m = np.median(np.array(l_do_sel))
+                    col_obs_m = np.median(np.array(l_col_sel))
+                    pt_obs_m = np.median(np.array(l_pt_sel))
+                    no_obs_m = np.median(np.array(l_no_sel))
+                    na_obs_m = np.median(np.array(l_na_sel))
+                    nn_obs_m = np.median(np.array(l_nn_sel))
 
 
                     l_cod_trecho.append(inp_codbas)
@@ -1339,6 +1369,44 @@ class Quality_Model:
                     l_pos_trecho.append(l_lengh[i])
 
 
+                if bod_obs_m is not None:
+                    l_obs_med_bod.append(bod_obs_m)
+                else:
+                    l_obs_med_bod.append(np.nan)
+
+                if do_obs_m is not None:
+                    l_obs_med_do.append(do_obs_m)
+                else:
+                    l_obs_med_do.append(np.nan)
+
+                if col_obs_m is not None:
+                    l_obs_med_col.append(col_obs_m)
+                else:
+                    l_obs_med_col.append(np.nan)
+
+                if pt_obs_m is not None:
+                    l_obs_med_pt.append(pt_obs_m)
+                else:
+                    l_obs_med_pt.append(np.nan)
+
+                if no_obs_m is not None:
+                    l_obs_med_no.append(no_obs_m)
+                else:
+                    l_obs_med_no.append(np.nan)
+
+                if na_obs_m is not None:
+                    l_obs_med_na.append(na_obs_m)
+                else:
+                    l_obs_med_na.append(np.nan)
+
+                if nn_obs_m is not None:
+                    l_obs_med_nn.append(nn_obs_m)
+                else:
+                    l_obs_med_nn.append(np.nan)
+
+
+
+
             ####################################################################
             # atualiza p/ proximo trecho
             codjus = self.d_codjus[ind]
@@ -1351,12 +1419,16 @@ class Quality_Model:
         #FIM LOOP TRECHOS  #############################################################################
         
         
-        # PLOT PROFILE
-        f, ax = plt.subplots(1, figsize=(12, 6))
-
-        if (len(l_bod_trecho)>0):
-            
-
+        
+        
+        # PLOT PROFILE ################################################################################
+        
+        
+        def plot_parameter(ax, par, par_title):
+          
+          #verifica se tem monitoramento 
+          if (len(l_bod_trecho)>0):
+        
             def switch(case):
                 if case == 'BOD':
                     return(l_bod_trecho)
@@ -1376,10 +1448,11 @@ class Quality_Model:
             l_obs_select = switch(par)            
             
             ax.boxplot(l_obs_select, positions= l_pos_trecho, widths = 5, patch_artist = True, zorder=1)
-        
-
-        
-        def switch(case):
+            ax.set_xticks([])
+            
+          
+          #plota dados calculados 
+          def switch(case):
             if case == 'BOD':
                 return(l_bod_tr_sim)
             elif case == 'DO':                
@@ -1395,24 +1468,18 @@ class Quality_Model:
             elif case == 'Nn':                
                 return (l_nn_tr_sim) 
 
-        l_cal_select = switch(par)    
+          l_cal_select = switch(par)    
         
 
-        ax.plot(l_lengh,l_cal_select, linestyle="-", color='black', zorder=3)
-        ax.set_xticks([])
-        
-        
-        if (par == 'Col'):
-            ax.set_yscale('log')
-            
-            
-            
-        if with_enq == True:
+          ax.plot(l_lengh,l_cal_select, linestyle="-", color='black', zorder=3)
+          ax.set_xticks([])
+
+
+          if with_enq == True:
             
             l_classe1=[]
             l_classe2=[]
             l_classe3=[]
-            
             
             for k in range(len(l_lengh)):
             
@@ -1475,38 +1542,201 @@ class Quality_Model:
             ax.plot(l_lengh, l_classe3, linestyle="--", color='yellow', zorder=3)
 
 
-        
-        
-        
-        #start, end = ax.get_xlim()
-        #ax.xaxis.set_ticks(np.arange(0, 350, 50))
-        
-        
-        #plt.xticks(np.arange(0, l_lengh[i-1], 50))
-        
-        x_label = np.arange(0, l_lengh[i-1], int(l_lengh[i-1]/5))
-        
-        plt.xticks(x_label, x_label)
-        
-        
-        ax.set_xlim(0, l_lengh[i-1])
-        
-        ax.grid(True)
-        ax.grid('grid', linestyle="--", color='#E8E8E8')
-        
-        
-        ax.set_ylabel("Concentration (mg/L)", fontsize=10)
-        ax.set_xlabel("Distance from upstream to downstream basin (km)", fontsize=10)
+          x_label = np.arange(0, l_lengh[i-1], int(l_lengh[i-1]/5))
+          plt.xticks(x_label, x_label)
+          ax.set_xlim(0, l_lengh[i-1])
+          ax.grid(True)
+          ax.grid('grid', linestyle="--", color='#E8E8E8')
+          ax.set_ylabel("Conc. " + par_title +  " (mg/L)", fontsize=9)
+          ax.set_xlabel("Distance from upstream to downstream basin (km)", fontsize=9)
+          
+          if label_pt == True:
+              #ax.set_ylabel("Concentração (mg/L)", fontsize=10)
+              ax.set_xlabel("Distância do trecho de montante ao trecho de jusante (km)", fontsize=9)          
 
-        if (par == 'Col'):
-            ax.set_ylabel("Concentration (org/100ml)", fontsize=10)
-    
-    
-    
-        ax.set_title("Longituginal concentration profile", fontsize=11)
+          if (par == 'Col'):
+             ax.set_yscale('log')
+             ax.set_ylabel("Conc. " + par_title +  " (org/100ml)", fontsize=9)
+             
+             #if label_pt == True:
+             #    ax.set_ylabel("Concentration (org/100ml)", fontsize=10)
+                 
+          #ax.set_title("Longituginal concentration profile - Parameter: "+ par_title, fontsize=10)
+          
+          #if label_pt == True:
+          #    ax.set_title("Perfil longitudinal de concentração: Parâmetro: "+ par_title, fontsize=10)
 
 
-        plt.show()
+          if with_metrics == True:
+
+              def switch(case):
+                  if case == 'BOD':
+                      return(l_obs_med_bod)
+                  elif case == 'DO':                
+                      return (l_obs_med_do)
+                  elif case == 'Col':               
+                      return (l_obs_med_col)
+                  elif case == 'Pt':                
+                      return (l_obs_med_pt) 
+                  elif case == 'No':
+                      return(l_obs_med_no)
+                  elif case == 'Na':                
+                      return (l_obs_med_na)
+                  elif case == 'Nn':                
+                      return (l_obs_med_nn) 
+
+              l_obs_med_par = switch(par)  
+
+              
+              #metricas
+              ar = np.array(list(zip(l_cal_select, l_obs_med_par)))
+              ar_drop = (ar[~np.isnan(ar).any(axis=1), :])
+        
+        
+              #metricas
+              rmse = sqrt(np.square(np.subtract(ar_drop[:,1], ar_drop[:,0])).mean())
+              mean_obs = np.mean(ar_drop[:,1])
+              rmse_perc = (rmse/mean_obs)*100
+              
+              
+              #bias
+              fe = abs(np.subtract(ar_drop[:,1], ar_drop[:,0]))
+              pbias = 100*(sum(fe) / sum(ar_drop[:,1]))
+              
+              
+              
+              
+              ymax = ax.get_ylim()[1]
+        
+              #plot metrics
+              ax.text(np.array(l_lengh).max() * 0.97, ymax * 0.97, '|PBIAS| = ' + ('{:.2f}'.format(pbias)),{'color': 'black', 'fontsize': 8, 'ha': 'right', 'va': 'top'})  
+              ax.text(np.array(l_lengh).max() * 0.72, ymax * 0.97, 'RMSE (%) = ' + ('{:.2f}'.format(rmse_perc)),{'color': 'black', 'fontsize': 8, 'ha': 'right', 'va': 'top'})
+       
+        
+        
+          plt.show()
+
+                     
+            
+            
+        ######################################################################################################
+        
+        if par == 'BOD':
+            f, ax = plt.subplots(1, figsize=(12, 6))
+            
+            title = 'BOD'
+            if label_pt == True:
+                title = 'DBO'
+            
+            plot_parameter(ax, 'BOD', title)
+            #plt.show() 
+            
+        if par == 'DO':
+            f, ax = plt.subplots(1, figsize=(12, 6))
+            
+            title = 'Dissolved Oxigen'
+            if label_pt == True:
+                title = 'Oxigênio dissolvido'
+            
+            plot_parameter(ax, 'DO', title)
+            #plt.show() 
+
+        if par == 'Col':
+            f, ax = plt.subplots(1, figsize=(12, 6))
+            
+            title = 'Coliforms'
+            if label_pt == True:
+                title = 'Coliformes'            
+            
+            
+            plot_parameter(ax, 'Col', title)
+            #plt.show() 
+
+        if par == 'Pt':
+            f, ax = plt.subplots(1, figsize=(12, 6))
+            
+            title = 'Total phosphorus'
+            if label_pt == True:
+                title = 'Fósforo total'            
+            
+            plot_parameter(ax, 'Pt', title)
+            #plt.show() 
+            
+        if par == 'No':
+            f, ax = plt.subplots(1, figsize=(12, 6))
+            
+            title = 'Organic Nitrogen'
+            if label_pt == True:
+                title = 'Nitrogênio orgânico'            
+            
+            plot_parameter(ax, 'No', title)
+            #plt.show()             
+            
+        if par == 'Na':
+            f, ax = plt.subplots(1, figsize=(12, 6))
+            
+            title = 'Ammon Nitrogen'
+            if label_pt == True:
+                title = 'Nitrogênio amoniacal'            
+            
+            plot_parameter(ax, 'Na', title)
+            #plt.show()             
+
+        if par == 'Nn':
+            f, ax = plt.subplots(1, figsize=(12, 6))
+
+            title = 'Nitrate'
+            if label_pt == True:
+                title = 'Nitrato'            
+            
+            plot_parameter(ax, 'Nn', title)
+            #plt.show()
+            
+        if par == 'All':
+            
+
+            fig, axs = plt.subplots(3, 2, figsize =(12, 14))
+            
+            title = 'BOD'
+            if label_pt == True:
+                title = 'DBO'
+            plot_parameter(axs[0, 0], 'BOD', title)
+
+            title = 'Dissolved Oxigen'
+            if label_pt == True:
+                title = 'Oxigênio dissolvido'                        
+            plot_parameter(axs[0, 1], 'DO', title)
+            
+            title = 'Coliforms'
+            if label_pt == True:
+                title = 'Coliformes'                  
+            plot_parameter(axs[1, 0], 'Col', title)
+            
+            title = 'Total phosphorus'
+            if label_pt == True:
+                title = 'Fósforo total'           
+            plot_parameter(axs[1, 1], 'Pt', title)
+            
+            title = 'Ammon Nitrogen'
+            if label_pt == True:
+                title = 'Nitrogênio amoniacal'             
+            plot_parameter(axs[2, 0], 'Na', title)
+            #plt.show()
+            
+            
+            title = 'Nitrate'
+            if label_pt == True:
+                title = 'Nitrato'              
+            plot_parameter(axs[2, 1], 'Nn', title)
+            #plt.show()
+
+            
+
+
+
+#######################################################################        
+        
+
         
         
         if with_text== True:
@@ -1515,7 +1745,7 @@ class Quality_Model:
             #WRITE INPUT FILE 
 
             name = QFileDialog.getSaveFileName(parent=None, caption='Save longitudinal profile', filter='.csv files (*.csv)')
-
+            
             name = name[0]
             self.dir = os.path.dirname(name) + '/'
             for i in name:
@@ -1523,12 +1753,33 @@ class Quality_Model:
                     name = name.replace('\\', '/')
 
 
+            
+            '''
+            bod_obs_mean = l_bod_trecho.mean()
+            do_obs_mean = l_do_trecho.mean()
+            
+            for i in range (len(l_bod_tr_sim)):
+                l_obs_bod_mean = np.nan
+                if 
+            
+            l_pos_trecho
+            '''
+            
+
+
+
+
             file = open(str(name), 'w')
 
             file.write('Length; BOD; DO; Col; Pt; No; Na; Nn; \n')
             
             for i in range (len(l_bod_tr_sim)):
-                file.write(str(l_lengh[i]) + ';' + str(l_bod_tr_sim[i]) + ';' + str(l_do_tr_sim[i]) + ';' + str(l_col_tr_sim[i]) + ';' + str(l_pt_tr_sim[i]) + ';' + str(l_no_tr_sim[i]) + ';' + str(l_na_tr_sim[i]) + ';' + str(l_nn_tr_sim[i]) + ';'  +  ' \n')
+                file.write(str(l_lengh[i]) + ';' + str(l_bod_tr_sim[i]) + ';' + str(l_do_tr_sim[i]) + ';' + str(l_col_tr_sim[i]) + ';' + str(l_pt_tr_sim[i]) + ';' + 
+                           str(l_no_tr_sim[i]) + ';' + str(l_na_tr_sim[i]) + ';' + str(l_nn_tr_sim[i]) + ';'  + str(l_bod_obs_mean[i]) +  ' \n')
+                
+                
+                
+                
                 #file.write(str(l_lengh[i]) + ';' + str(l_codbas[i]) +   ' \n')
                 
            
