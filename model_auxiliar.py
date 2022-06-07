@@ -865,13 +865,14 @@ def save_parameters_drl(self, lyr_drl):
     
     
     d_codbas=np.empty(0)
-    d_subw= np.empty((0))
-    d_depth= np.empty((0))
-    d_width= np.empty((0))
-    d_slope= np.empty((0))
+    d_subw= np.empty(0)
+    d_depth= np.empty(0)
+    d_width= np.empty(0)
+    d_slope= np.empty(0)
     #self.d_qefl=np.zeros((nd))
-    d_qnat= np.empty((0))
-    d_uparea= np.empty((0))
+    d_qnat= np.empty(0)
+    d_uparea= np.empty(0)
+    d_ka_old= np.empty(0)
     
     features = lyr_drl.getFeatures()
     for feature in features:
@@ -881,6 +882,7 @@ def save_parameters_drl(self, lyr_drl):
             d_width = np.append(d_width, feature['Width_m'])
             d_slope = np.append(d_slope, feature['Slope'])
             d_uparea = np.append(d_uparea, feature['AreaUp_km2'])
+            d_ka_old = np.append(d_ka_old, feature['Coef_Ka'])
             
             d_qnat = np.append(d_qnat, feature['Q_Read_'+str(self.q_scn)])
             
@@ -1024,18 +1026,23 @@ def save_parameters_drl(self, lyr_drl):
             d_ka[idr] = 15.4 * d_slope[idr] * 1000 * d_vel[idr]
             
             
-    elif self.ka_option == 4: #melching e flores 
+    elif self.ka_option == 4: #melching e flores
+        
+        for idr in range (nd): 
+            if d_qnat[idr] < 0.556:  
+                d_ka[idr] = 517 * (d_slope[idr] * d_vel[idr])**0.524 * (d_qnat[idr])**(-0.242)
+            else:
+                d_ka[idr] = 596 * (d_slope[idr] * d_vel[idr])**0.528 * (d_qnat[idr])**(-0.136)
+        
+
+    elif self.ka_option == 5: #ajuste manual
+        
+        for idr in range (nd):         
+            d_ka[idr] = d_ka_old[idr]
+
         
         
-        if d_qnat[idr] < 0.556:  
-            d_ka[idr] = 517 * (d_slope[idr] * d_vel[idr])**0.524 * (d_qnat[idr])**(-0.242)
-        else:
-            d_ka[idr] = 596 * (d_slope[idr] * d_vel[idr])**0.528 * (d_qnat[idr])**(-0.136)
         
-
-
-
-
         
     #parametros fixos por subbacia 
     for ib in range (nb):
