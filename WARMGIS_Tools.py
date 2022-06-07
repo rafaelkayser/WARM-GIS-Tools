@@ -1384,7 +1384,8 @@ class WARMGIS_Tools:
             elif case == 'Nitrate':                
                 return 'Nn'
 
-
+            elif case == 'All parameters':                
+                return 'All'
                 
 
         par_code = switch(plot_par)
@@ -1396,8 +1397,9 @@ class WARMGIS_Tools:
         with_obs = self.wid_run_qual.cbx_with_obs.isChecked()
         with_enq = self.wid_run_qual.cbx_with_enq.isChecked()
         with_text = self.wid_run_qual.cbx_with_text.isChecked()
+        with_metrics = self.wid_run_qual.cbx_statistics.isChecked()
         
-        
+        label_pt = self.wid_run_qual.cbx_label_pt.isChecked()
         
         if not hasattr(self, 'path_stations') or not self.path_stations:
             self.path_stations = None
@@ -1421,7 +1423,7 @@ class WARMGIS_Tools:
         '''
              
     
-        self.model_qual.graph_profile(int(ups_code),int(down_code), str(par_code), with_obs, with_enq, with_text, self.path_stations, self.path_obs)
+        self.model_qual.graph_profile(int(ups_code),int(down_code), str(par_code), with_obs, with_enq, with_text, label_pt, with_metrics, self.path_stations, self.path_obs)
         
         
     def fc_path_qual_obs(self):
@@ -2020,12 +2022,6 @@ class WARMGIS_Tools:
         self.lyr_drl.commitChanges()
         self.lyr_drl.updateFields() 
         
-        
-
-        
-        
-        
-        
         self.wid_ins_res_pon.close()
 
 
@@ -2037,16 +2033,6 @@ class WARMGIS_Tools:
 
 
         QMessageBox.information(self.iface.mainWindow(), 'WARM GIS Tools', 'User successfully inserted!')
-
-
-
-
-
-
-
-
-
-
 
 
     def fc_ins_lan_pon(self):
@@ -3054,7 +3040,8 @@ class WARMGIS_Tools:
             elif ka_option == 'Flores':
                 self.wid_qual_par.rbt_ka_flores.setChecked(True)
 
-        
+            elif ka_option == 'Manual':
+                self.wid_qual_par.rbt_ka_manual.setChecked(True)        
         
 
 
@@ -3210,7 +3197,8 @@ class WARMGIS_Tools:
         elif self.wid_qual_par.rbt_ka_flores.isChecked()==True:
             self.ka_option =4
             
-            
+        elif self.wid_qual_par.rbt_ka_manual.isChecked()==True:
+            self.ka_option =5            
             
         #discharge option
         self.q_scn = int(self.wid_qual_par.cbx_q_scn.currentText())
@@ -3364,7 +3352,9 @@ class WARMGIS_Tools:
 
         elif self.ka_option==4:
             file.write('Flores' +  '\n')                
-        
+
+        elif self.ka_option==5:
+            file.write('Manual' +  '\n')         
         
         file.close()
         
