@@ -272,7 +272,7 @@ class Quality_Model:
                 if (self.d_codbas[idr]==self.e_codbas[ie]):
                     for it in range (0, nt):
                                
-                        self.d_qefl[idr,it]= self.d_qefl[idr,it]+self.e_qefl[ie,it]               
+                        self.d_qefl[idr,it]= self.d_qefl[idr,it]+self.e_qefl[ie,it]
                         self.d_ebod[idr,it] = ((self.e_cbod[ie,it] * self.e_qefl[ie,it]) + (self.d_ebod[idr,it] * self.d_qefl[idr,it])) / self.d_qefl[idr,it]
                         self.d_edo[idr,it] = ((self.e_cdo[ie,it] * self.e_qefl[ie,it]) + (self.d_edo[idr,it] * self.d_qefl[idr,it])) / self.d_qefl[idr,it]
                         self.d_ecol[idr,it] = ((self.e_ccol[ie,it] * self.e_qefl[ie,it]) + (self.d_ecol[idr,it] * self.d_qefl[idr,it])) / self.d_qefl[idr,it]
@@ -567,9 +567,9 @@ class Quality_Model:
             if self.d_ord[idr] ==1:
         
                 for it in range(nt):
-                    d_qmn[idr,it]= self.d_qnat[idr,it]*0.5  #montante - natural
-                    d_qmr[idr,it]= self.d_qnat[idr,it]*0.5   #montante - remanescente
-                    d_qmnr[idr,it]=self.d_qnat[idr,it]*0.5  #natural com reservatorios
+                    d_qmn[idr,it]= self.d_qnat[idr,it]*0.9  #montante - natural
+                    d_qmr[idr,it]= self.d_qnat[idr,it]*0.9   #montante - remanescente
+                    d_qmnr[idr,it]=self.d_qnat[idr,it]*0.9  #natural com reservatorios
 
 
                    
@@ -974,7 +974,14 @@ class Quality_Model:
 
                 # NITRATO
                 #d_dnn[idr,it] = (d_mno[idr,it] - d_dno[idr,it]) + (d_mna[idr,it] - d_dna[idr,it]) + (d_mni[idr,it] - d_dni[idr,it]) + d_mnn[idr,it]
-                d_dnn[idr,it] = (d_mna[idr,it]-d_dna[idr,it]+d_mnn[idr,it]) * np.exp(-self.d_kden[idr] * time)
+                #d_dnn[idr,it] = ((d_dna[idr,it] * np.exp(-self.d_kan[idr] * time))+d_mnn[idr,it]) * np.exp(-self.d_kden[idr] * time)
+
+
+                if (self.d_kden[idr] == self.d_kan[idr]):
+                    self.d_kden[idr] = self.d_kden[idr]*0.9
+
+                d_dnn[idr,it] = (d_mnn[idr,it] * np.exp(-self.d_kden[idr] * time)) + (((self.d_kan[idr] * d_mna[idr,it]) /
+                              (self.d_kden[idr] - self.d_kan[idr])) * ((np.exp(-self.d_kan[idr] * time)) - (np.exp(-self.d_kden[idr] * time))))
 
 
         
@@ -1161,6 +1168,21 @@ class Quality_Model:
         if with_obs == True:
             
             # READ OBSERVED FILE
+            
+            lyr_est = QgsVectorLayer(path_stations, 'water quality stations', 'ogr')
+            
+            #ns =  lyr_est.featureCount()
+            s_codbas= np.empty(0)
+            s_ids= np.empty(0)
+       
+
+            features = lyr_est.getFeatures()
+
+            for feature in features:
+                s_ids = np.append(s_ids, feature['Station'])
+                s_codbas = np.append(s_codbas, feature['CodBas_ID'])
+            
+            '''
             rows = []
 
             s_ids=[]
@@ -1180,7 +1202,7 @@ class Quality_Model:
                 
                 
             s_codbas = [int(m) for m in s_codbas]
-                
+            '''    
 
 
             # READ OBSERVED FILE
