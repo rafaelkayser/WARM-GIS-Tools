@@ -51,6 +51,8 @@ from csv import reader
 
 
 
+
+
 from .WARMWidget import Widget
 from .WARMWidget import wid_open_proj
 from .WARMWidget import wid_run_balance
@@ -172,6 +174,11 @@ class WARMGIS_Tools:
         self.wid_run_qual.psh_path_river.clicked.connect(self.fc_path_csv_river)
         self.wid_run_qual.psh_river_codes.clicked.connect(self.fc_river_codes)
         
+
+        self.wid_run_qual.psh_path_shp.clicked.connect(self.fc_path_shp_est)
+        self.wid_run_qual.psh_path_data.clicked.connect(self.fc_path_data_est)
+
+
         
         #INSERT USER
         self.wid_ins_wit_pon = wid_ins_wit_pon()
@@ -219,11 +226,14 @@ class WARMGIS_Tools:
         self.wid_qual_par.psh_sel_file_par.clicked.connect(self.fc_open_create_par_qual)
         
 
-        #STREAMFLOW DATA
+        #WATER QUALITY STATIONS
         self.wid_qual_obs = wid_qual_obs()
-        self.wid_qual_obs.psh_path_obs_list.clicked.connect(self.fc_path_csv_list) 
-        self.wid_qual_obs.psh_path_obs_data.clicked.connect(self.fc_path_csv_data)
-        self.wid_qual_obs.psh_confirm_obs.clicked.connect(self.fc_path_qual_obs)        
+        #self.wid_qual_obs.psh_path_obs_list.clicked.connect(self.fc_path_csv_list) 
+        #self.wid_qual_obs.psh_path_obs_data.clicked.connect(self.fc_path_csv_data)
+        #self.wid_qual_obs.psh_confirm_obs.clicked.connect(self.fc_path_qual_obs)
+        self.wid_qual_obs.psh_path_csv.clicked.connect(self.fc_path_csv4)
+        self.wid_qual_obs.psh_ins_table.clicked.connect(self.fc_ins_monit_data_coords)
+        self.wid_qual_obs.psh_ins_lan.clicked.connect(self.fc_ins_monit_data_shape)           
         
         
         ###############################################################################
@@ -287,8 +297,23 @@ class WARMGIS_Tools:
         self.wid_ins_lan_tab.lin_path.setText(name2)
 
 
-     ############
+    def fc_path_csv4(self):
+        
+        name2 = QFileDialog.getOpenFileName(parent=self.wid_qual_obs, caption='Input', filter='CSV files (*.csv)', directory=self.dir)
+        name2=name2[0]
+        
+        self.dir = os.path.dirname(name2) + '/'
+        
+        for i in name2:
+            if i == '\\':
+                name2 = name2.replace('\\', '/')
 
+        self.wid_qual_obs.lin_path.setText(name2)
+
+
+     ############
+    
+    '''
     def fc_path_csv_list(self):
         
         name2 = QFileDialog.getOpenFileName(parent=None, caption='Input', filter='CSV files (*.csv)', directory=self.dir)
@@ -301,9 +326,25 @@ class WARMGIS_Tools:
                 name2 = name2.replace('\\', '/')
 
         self.wid_qual_obs.lin_path_list.setText(name2)
-        
+        '''
 
-    def fc_path_csv_data(self):
+    def fc_path_shp_est(self):
+        
+        name2 = QFileDialog.getOpenFileName(parent=self.wid_open_proj, caption='Select shapefile with water quality stations (previously configured)', filter='Shapefiles (*.shp)')
+        name2=name2[0]
+        
+        self.dir = os.path.dirname(name2) + '/'
+        
+        for i in name2:
+            if i == '\\':
+                name2 = name2.replace('\\', '/')
+
+        self.wid_run_qual.lin_path_shp.setText(name2)
+
+
+
+
+    def fc_path_data_est(self):
         
         name2 = QFileDialog.getOpenFileName(parent=None, caption='Input', filter='CSV files (*.csv)', directory=self.dir)
         name2=name2[0]
@@ -314,7 +355,11 @@ class WARMGIS_Tools:
             if i == '\\':
                 name2 = name2.replace('\\', '/')
 
-        self.wid_qual_obs.lin_path_data.setText(name2)
+        self.wid_run_qual.lin_path_data.setText(name2)
+
+
+
+
 
 
 
@@ -393,6 +438,10 @@ class WARMGIS_Tools:
 
 
 
+
+
+
+#####################################################################################################################3
 
 
         
@@ -630,7 +679,7 @@ class WARMGIS_Tools:
         
 
         if str('[' + str(self.dockwidget.treeWidget.currentItem()) + ']') == str(
-                self.dockwidget.treeWidget.findItems('Insert water quality observed data', Qt.MatchRecursive,0)):
+                self.dockwidget.treeWidget.findItems('Insert water quality stations', Qt.MatchRecursive,0)):
             self.wid_qual_obs.show()  
 
         
@@ -1209,7 +1258,9 @@ class WARMGIS_Tools:
     
     def fc_balmod_sim(self):
         
-
+      try:
+          
+          
         #numero de cenarios
         nt = int( self.wid_run_balance.cbx_number_sim.currentText())
         
@@ -1235,7 +1286,7 @@ class WARMGIS_Tools:
         
      
     
-        d_qout, d_wbal, d_qdef = self.model_bal.run_model()
+        d_qout, d_wbal, d_qdef, d_codbas = self.model_bal.run_model()
         
         
         #d_qout.tofile('C:/Users/rafae/OneDrive/10_warm_gis/teste5.csv',sep=',')
@@ -1264,18 +1315,21 @@ class WARMGIS_Tools:
             i = i + 1
 
         self.lyr_drl.commitChanges()
-        self.lyr_drl.updateFields() 
+        self.lyr_drl.updateFields()
+        
         
         QMessageBox.information(self.iface.mainWindow(), 'WARM-GIS Tools', 'Simulation completed successfully!')
         
 
-
+      except:
+            
+        QMessageBox.information(self.iface.mainWindow(), 'Error!', 'Check input files and verify if simulation options were selected!')        
     
     
 
     def fc_run_qual(self):
 
-
+      try:
 
         path_par = self.wid_run_qual.lin_path_par.text()
         
@@ -1353,17 +1407,23 @@ class WARMGIS_Tools:
         QMessageBox.information(self.iface.mainWindow(), 'WARM-GIS Tools', 'Simulation completed successfully!')
         
 
+      except:
+            
+        QMessageBox.information(self.iface.mainWindow(), 'Error!', 'Check input files and verify if simulation options were selected!') 
+
 
     def fc_plot_qual(self):
         
+      #try:
         
-
         
-        #path_obs = self.wid_run_qual.lin_path_obs.text()
         
         ups_code = self.wid_run_qual.lin_ups_code.text()
         down_code = self.wid_run_qual.lin_down_code.text()
         plot_par = self.wid_run_qual.cbx_par.currentText()
+        
+        path_obs = self.wid_run_qual.lin_path_data.text()
+        path_stations = self.wid_run_qual.lin_path_shp.text()
         
         
         def switch(case):
@@ -1401,13 +1461,15 @@ class WARMGIS_Tools:
         
         label_pt = self.wid_run_qual.cbx_label_pt.isChecked()
         
-        if not hasattr(self, 'path_stations') or not self.path_stations:
-            self.path_stations = None
+        '''
+        if not hasattr(self, 'path_stations') or not path_stations:
+            path_stations = None
             
-        if not hasattr(self, 'path_obs') or not self.path_obs:
-            self.path_obs = None            
+        if not hasattr(self, 'path_obs') or not path_obs:
+            path_obs = None            
+         '''   
             
-            
+         
             
         '''
         #checar se os dados observados foram inseridos
@@ -1423,7 +1485,12 @@ class WARMGIS_Tools:
         '''
              
     
-        self.model_qual.graph_profile(int(ups_code),int(down_code), str(par_code), with_obs, with_enq, with_text, label_pt, with_metrics, self.path_stations, self.path_obs)
+        self.model_qual.graph_profile(int(ups_code),int(down_code), str(par_code), with_obs, with_enq, with_text, label_pt, with_metrics, path_stations, path_obs)
+
+
+      #except:
+            
+        #QMessageBox.information(self.iface.mainWindow(), 'Error!', 'Check if upstream and downstream codes were assigned correctly!') 
         
         
     def fc_path_qual_obs(self):
@@ -1443,7 +1510,8 @@ class WARMGIS_Tools:
 
     def fc_plot_bal(self):
         
-
+      try:
+        
         ups_code = self.wid_run_balance.lin_ups_code.text()
         down_code = self.wid_run_balance.lin_down_code.text()
         plot_par = self.wid_run_balance.cbx_par.currentText()
@@ -1485,6 +1553,9 @@ class WARMGIS_Tools:
         
         self.model_bal.graph_profile(int(ups_code),int(down_code), int(par_code), with_text)
 
+      except:
+            
+        QMessageBox.information(self.iface.mainWindow(), 'Error!', 'Check if upstream and downstream codes were assigned correctly!') 
 
 
     def fc_render_bal(self, n):
@@ -1537,14 +1608,14 @@ class WARMGIS_Tools:
         symbol6 = QgsSymbol.defaultSymbol(self.lyr_drl.geometryType())
         symbol6.setColor(QColor('#FF0000'))  #RED
         symbol6.setWidth(wid)
-        range6 = QgsRendererRange(75.001, 99, symbol6, '75.1% - 99%')
+        range6 = QgsRendererRange(75.001, 99.9, symbol6, '75.1% - 99.9%')
         rangeList.append(range6)
 
         # CLASS 7
         symbol7 = QgsSymbol.defaultSymbol(self.lyr_drl.geometryType())
         symbol7.setColor(QColor('#8B0000'))  #DARK RED
         symbol7.setWidth(wid)
-        range7 = QgsRendererRange(99.001, 100, symbol7, '>99%')
+        range7 = QgsRendererRange(99.90001, 100000, symbol7, '=>100%')
         rangeList.append(range7)
       
 
@@ -2107,10 +2178,10 @@ class WARMGIS_Tools:
         
     def fc_ins_wit_tab(self):
         
-        
+      try:
+         
         #LEITURA DA TABELA CSV --------------------------------------------------------------------------------------
         
-        from csv import reader
         
         path_ = self.wid_ins_wit_tab.lin_path.text()
         nc = int(self.wid_ins_wit_tab.cbx_ndem.currentText())
@@ -2118,7 +2189,7 @@ class WARMGIS_Tools:
         
         
         rows = []
-        with open(path_, 'r', encoding='utf-8') as read_obj:
+        with open(path_, 'r', encoding="utf-8") as read_obj:
             csv_reader = reader(read_obj, delimiter=';')
             header = next(csv_reader)
             # Check file as empty
@@ -2137,7 +2208,7 @@ class WARMGIS_Tools:
                     
         for i in range (len(rows)):
 
-            userid= float(rows[i][0])
+            userid= (rows[i][0])
             long=float(rows[i][1])
             lat=float(rows[i][2])            
             
@@ -2222,6 +2293,10 @@ class WARMGIS_Tools:
         
         #self.wid_ins_wit_tab.close()
         
+      except:
+            
+        QMessageBox.information(self.iface.mainWindow(), 'Error!', 'The .csv file cannot have accented words!') 
+        
 
 
     def fc_ins_wit_tab_shape(self):
@@ -2278,10 +2353,10 @@ class WARMGIS_Tools:
         
     def fc_ins_lan_tab(self):
         
+      try:
         
         #LEITURA DA TABELA CSV --------------------------------------------------------------------------------------
         
-        from csv import reader
         
         path_ = self.wid_ins_lan_tab.lin_path.text()
         
@@ -2318,7 +2393,7 @@ class WARMGIS_Tools:
                     
         for i in range (len(rows)):
 
-            userid= float(rows[i][0])
+            userid= (rows[i][0])
             long=float(rows[i][1])
             lat=float(rows[i][2])
             qefl=float(rows[i][3])
@@ -2448,6 +2523,10 @@ class WARMGIS_Tools:
         qTable.setHorizontalHeaderLabels(list_head)
         qTable.resizeColumnsToContents()
 
+      except:
+            
+        QMessageBox.information(self.iface.mainWindow(), 'Error!', 'The .csv file cannot have accented words!') 
+
 
 
     def fc_ins_lan_tab_shape(self):
@@ -2514,6 +2593,161 @@ class WARMGIS_Tools:
 
 ##############################################################################################################################
 ########################## CONFIGURAÇÕES DO ARQUIVO DE PARAMETROS DE QUALIDADE DE ÁGUA #######################################
+        
+        
+    def fc_ins_monit_data_coords(self):
+        
+      try:
+        
+        #LEITURA DA TABELA CSV --------------------------------------------------------------------------------------
+        
+        
+        path_ = self.wid_qual_obs.lin_path.text()
+        
+        rows = []
+        with open(path_, 'r', encoding='utf-8') as read_obj:
+            csv_reader = reader(read_obj, delimiter=';')
+            header = next(csv_reader)
+            # Check file as empty
+            if header != None:
+                # Iterate over each row after the header in the csv
+                for row in csv_reader:
+                    # row variable is a list that represents a row in csv
+                    rows.append(row)
+                    
+        self.l_userid=[]
+        self.l_long=[]
+        self.l_lat=[]
+        self.l_codbas=[]
+
+        for i in range (len(rows)):
+
+            userid= (rows[i][0])
+            long=float(rows[i][1])
+            lat=float(rows[i][2])
+          
+            self.l_userid.append(userid)
+            self.l_long.append(long)
+            self.l_lat.append(lat)
+
+        
+        #identificação da bacia
+        layer = self.lyr_cat
+        
+
+
+        for j in range(len(rows)):
+            
+            features = layer.getFeatures()
+            for feature in features:
+                if QgsGeometry.fromPointXY(QgsPointXY(self.l_long[j], self.l_lat[j])).intersects(feature.geometry()):
+                    codbas = (feature.attribute("CodBas_ID"))
+                    
+            self.l_codbas.append(codbas)
+         
+            
+            
+        #INSERÇÃO NO TABLE WIDGET ------------------------------------------------------------------------------------------
+        
+        qTable = self.wid_qual_obs.tableWidget
+        #data = ['teste1', 'teste2']
+        
+        
+        nb_row = len(rows)
+        nb_col = 4
+        qTable.setRowCount(nb_row)
+        qTable.setColumnCount(nb_col)
+
+        for row in range(nb_row):
+            # Add following line to only populate first column
+            for col in [0]:
+                item = QTableWidgetItem(str(self.l_userid[row]))
+                qTable.setItem(row,col,item)
+            for col in [1]:
+                item = QTableWidgetItem(str(self.l_long[row]))
+                qTable.setItem(row,col,item)
+            for col in [2]:
+                item = QTableWidgetItem(str(self.l_lat[row]))
+                qTable.setItem(row,col,item)                
+            for col in [3]:
+                item = QTableWidgetItem(str(self.l_codbas[row]))
+                qTable.setItem(row,col,item) 
+            
+                
+        list_head=[]
+        list_head.append(u'Station')
+        list_head.append(u'Longitude')
+        list_head.append(u'Latitude')
+        list_head.append(u'Basin Code')
+        
+
+        qTable.setHorizontalHeaderLabels(list_head)
+        qTable.resizeColumnsToContents()
+
+      except:
+            
+        QMessageBox.information(self.iface.mainWindow(), 'Error!', 'The .csv file cannot have accented words!')         
+        
+        
+        
+
+
+    def fc_ins_monit_data_shape(self):
+        
+        
+        name = QFileDialog.getSaveFileName(parent=self.wid_open_proj, caption='Create new input file', filter='.Shapefiles (*.shp)')
+        name = name[0]
+        self.dir = os.path.dirname(name) + '/'
+        for i in name:
+            if i == '\\':
+                name = name.replace('\\', '/')
+                
+                
+        # define fields for feature attributes. A QgsFields object is needed
+        fields = QgsFields()
+        fields.append(QgsField("Station", QVariant.String))
+        fields.append(QgsField("CodBas_ID", QVariant.Int))
+
+
+        crs = QgsProject.instance().crs()
+        transform_context = QgsProject.instance().transformContext()
+        save_options = QgsVectorFileWriter.SaveVectorOptions()
+        save_options.driverName = "ESRI Shapefile"
+        save_options.fileEncoding = "UTF-8"
+
+        crs = QgsCoordinateReferenceSystem("EPSG:4326")
+        writer = QgsVectorFileWriter(name,
+                     "Water quality stations",
+                     fields,
+                     QgsWkbTypes.Point, #### instead of QGis.WKBPoint
+                     crs, #### instead of None
+                     "ESRI Shapefile")
+
+        #if writer.hasError() != QgsVectorFileWriter.NoError:
+        #print("Error when creating shapefile: ",  writer.errorMessage())
+
+        # add a feature
+        
+        
+        for ie in range(len(self.l_userid)):
+            
+            #fet = QgsFeature()
+            #fet.setGeometry(QgsGeometry.fromPointXY(float(self.l_long[ie]),float(self.l_lat[ie])))
+            #fet.setAttributes([self.l_userid[ie], self.l_codbas[ie]])
+            #writer.addFeature(fet)
+            
+            pnt = QgsGeometry.fromPointXY(QgsPointXY(self.l_long[ie],self.l_lat[ie])) 
+            feature = QgsFeature()
+            feature.setGeometry(pnt)
+            feature.setAttributes([self.l_userid[ie], self.l_codbas[ie]]) #added line
+            writer.addFeature(feature)
+
+            #self.lyr_est.dataProvider().addFeatures([feature])
+            #self.lyr_est.updateExtents()
+
+        #QgsProject.instance().addMapLayer(layer)
+        QMessageBox.information(self.iface.mainWindow(), 'WARM GIS Tools', 'Shapefile with water quality stations sucessful created! Check if basin codes have been assigned correctly.')  
+     
 
     def fc_open_create_par_qual(self):
         
@@ -3361,7 +3595,4 @@ class WARMGIS_Tools:
         
         
         QMessageBox.information(self.iface.mainWindow(), 'WARM-GIS Tools', 'Parameter file created successfully. Check the values calculated for each feature in the drainage line file!')
-        
-
-
         
