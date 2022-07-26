@@ -163,6 +163,7 @@ class Balance_Model:
     
         self.r_codres=np.empty((0))
         self.r_codbas=np.empty((0))
+        self.r_fiodag=np.empty((0))
         
         self.r_qrel = np.empty((0, nt))
         self.r_qsubs = np.empty((0, nt))     
@@ -170,33 +171,41 @@ class Balance_Model:
         if (nr>0):
         
           features = self.lyr_res.getFeatures()
-
+          
           for feature in features:
-            
             
             # Append list as a column to the 2D Numpy array
             self.r_codres = np.append(self.r_codres, feature['Res_ID'])
             self.r_codbas = np.append(self.r_codbas, feature['CodBas_ID'])
+            self.r_fiodag = np.append(self.r_fiodag, feature['With_ROR'])
             
+            #if self.r_fiodag[i] ==0:
+            if (0==0):
             
-            aux_qrel = np.empty((0,nt))
-            for it in range(0,nt):
-                #aux_qwit = np.append(aux_qwit, feature['Q_Rel_'+str(it+1)])
-                aux_qrel = np.append(aux_qrel, feature['Q_Rel_1'])
-            aux_qrel.resize(1,nt)
-            self.r_qrel = np.append(self.r_qrel, aux_qrel, axis=0)
+                aux_qrel = np.empty((0,nt))
+                for it in range(0,nt):
+                    aux_qrel = np.append(aux_qrel, feature['Q_Rel_1'])
+                aux_qrel.resize(1,nt)
+                self.r_qrel = np.append(self.r_qrel, aux_qrel, axis=0)
 
-            aux_qsubs = np.empty((0,nt))
-            for it in range(0,nt):
-                #aux_qwit = np.append(aux_qwit, feature['Q_Rel_'+str(it+1)])
-                aux_qsubs = np.append(aux_qsubs, feature['Q_Subs_1'])
-            aux_qsubs.resize(1,nt)
-            self.r_qsubs = np.append(self.r_qsubs, aux_qsubs, axis=0)
-
-
-
-
-
+                aux_qsubs = np.empty((0,nt))
+                for it in range(0,nt):
+                    aux_qsubs = np.append(aux_qsubs, feature['Q_Subs_1'])
+                aux_qsubs.resize(1,nt)
+                self.r_qsubs = np.append(self.r_qsubs, aux_qsubs, axis=0)
+                
+                
+                
+                
+          for ir in range(nr):
+                
+                if self.r_fiodag[ir] ==1: 
+                    for idr in range(0,nd):    
+                        if (self.d_codbas[idr]==self.r_codbas[ir]):
+                            for it in range (0, nt):
+                                self.r_qrel[ir,it]= self.d_qnat[idr,it]
+                                #self.r_qsubs[ir,it]= self.d_qnat[idr,it]
+                
 
 
 
@@ -360,7 +369,7 @@ class Balance_Model:
                 
     
     
-            # 3 - WATER BALANCE - Mistura do efluente com o trecho de rio
+            # 3 - WATER BALANCE 
             for it in range(nt):
     
                 self.d_qout[idr,it] = (d_qmr[idr,it] + d_qcat[idr,it]-self.d_qwit[idr,it])
@@ -371,9 +380,20 @@ class Balance_Model:
                     self.d_qout[idr,it] = 0
                     self.d_qdef[idr,it] = self.d_qwit[idr,it] -(d_qmr[idr,it] + d_qcat[idr,it])
                     
+
                     
-                    
-                    
+            #5 - DEFICIT ACUMULADO
+            for it in range(nt):
+                self.d_qdefacm[idr,it]= d_qmd[idr,it] + self.d_qdef[idr,it]
+                
+            #6 - BALANCO HÍDRICO FINAL                    
+            for it in range(nt):
+                #self.d_wbal[idr,it]= ((self.d_qnat[idr,it]- self.d_qout[idr,it])/ self.d_qnat[idr,it])*100
+                self.d_wbal[idr,it]= ((self.d_qnatres[idr,it]- self.d_qout[idr,it])/ self.d_qnatres[idr,it])*100
+                
+                if self.d_wbal[idr,it]==100:
+                    self.d_wbal[idr,it]= (self.d_qwit[idr,it] / (self.d_qwit[idr,it] - self.d_qdef[idr,it]))*100
+
                     
             #4 - RESERVOIR MODULE
             
@@ -387,7 +407,12 @@ class Balance_Model:
                      
                      self.d_qout[idr,it] = self.r_qsubs[ir,it]
                      self.d_qnatres[idr,it] = self.r_qsubs[ir,it]
-                     self.d_qdef[idr,it] = 0
+                     self.d_wbal[idr,it]= (self.d_qwit[idr,it] / self.r_qsubs[ir,it])*100
+                     
+                     if self.d_wbal[idr,it]<100:
+                         self.d_qdef[idr,it] = 0
+                     else:
+                         self.d_qdef[idr,it] = self.d_qwit[idr,it] - self.r_qsubs[ir,it]
                      
             #barramento
             ind_res = np.array(np.where(self.r_codbas == self.d_codbas[idr]))
@@ -401,17 +426,8 @@ class Balance_Model:
                     self.d_qnatres[idr,it] = self.r_qrel[ir,it]
                     
                     
-            #5 - DEFICIT ACUMULADO
-            for it in range(nt):
-                self.d_qdefacm[idr,it]= d_qmd[idr,it] + self.d_qdef[idr,it]
-                
-            #6 - BALANCO HÍDRICO FINAL                    
-            for it in range(nt):
-                #self.d_wbal[idr,it]= ((self.d_qnat[idr,it]- self.d_qout[idr,it])/ self.d_qnat[idr,it])*100
-                self.d_wbal[idr,it]= ((self.d_qnatres[idr,it]- self.d_qout[idr,it])/ self.d_qnatres[idr,it])*100
-        
-        ##return self.d_kcol
-        return self.d_qout, self.d_wbal, self.d_qdefacm
+        return self.d_qout, self.d_wbal, self.d_qdefacm, self.d_codbas
+      #  return self.d_qout, self.d_wbal, self.d_qdef, self.d_codbas
     
 
 
