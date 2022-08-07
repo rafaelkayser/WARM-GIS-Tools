@@ -339,7 +339,7 @@ class Quality_Model:
                 c_wpo = np.append(c_wpo, feature['Load_Po'])
                 c_wno = np.append(c_wno, feature['Load_No'])
                 c_wna = np.append(c_wna, feature['Load_Na'])
-                c_wnn = np.append(c_wnn, feature['Load_Nn'])
+                c_wnn = 0 #np.append(c_wnn, feature['Load_Nn'])
 
 
             for idr in range(nd):
@@ -352,7 +352,7 @@ class Quality_Model:
                         self.d_wpi[idr] = c_wpi[ic]
                         self.d_wno[idr] = c_wno[ic]
                         self.d_wna[idr] = c_wna[ic]
-                        self.d_wnn[idr] = c_wnn[ic]
+                        self.d_wnn[idr] = 0 #c_wnn[ic]
 
 
             #aplicar reduções de carga 
@@ -567,9 +567,9 @@ class Quality_Model:
             if self.d_ord[idr] ==1:
         
                 for it in range(nt):
-                    d_qmn[idr,it]= self.d_qnat[idr,it]*0.9  #montante - natural
-                    d_qmr[idr,it]= self.d_qnat[idr,it]*0.9   #montante - remanescente
-                    d_qmnr[idr,it]=self.d_qnat[idr,it]*0.9  #natural com reservatorios
+                    d_qmn[idr,it]= self.d_qnat[idr,it]*0.5  #montante - natural
+                    d_qmr[idr,it]= self.d_qnat[idr,it]*0.5   #montante - remanescente
+                    d_qmnr[idr,it]=self.d_qnat[idr,it]*0.5  #natural com reservatorios
 
 
                    
@@ -602,6 +602,75 @@ class Quality_Model:
             else:
         
                 ind_jus = np.array(np.where(self.d_codjus == self.d_codbas[idr]))
+                
+                
+                
+                if (ind_jus.size)==1:
+            
+                    for it in range(nt):
+                
+                        #upstream flow (natural)
+                        qmn1 = self.d_qnat[ind_jus[0,0],it]
+                        #qmn2 = self.d_qnat[ind_jus[0,1],it]
+                        d_qmn[idr,it] = qmn1
+                
+                        #upstream flow (remaining)
+                        qmr1 = self.d_qout[ind_jus[0,0],it]
+                        #qmr2 = self.d_qout[ind_jus[0,1],it]
+                        d_qmr[idr,it] = qmr1
+                        
+                        #upstream flow (natural with reservoirs)
+                        qmnr1 = self.d_qnatres[ind_jus[0,0],it]
+                        #qmnr2 = self.d_qnatres[ind_jus[0,1],it]
+                        d_qmnr[idr,it] = qmnr1
+
+                        #upstream bod
+                        cm1 = self.d_obod[ind_jus[0,0],it]
+                        #cm2 = self.d_obod[ind_jus[0,1],it]
+                        d_ibod[idr,it] = cm1 # ((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+                
+                        #upstream do
+                        cm1 = self.d_odo[ind_jus[0,0],it]
+                        #cm2 = self.d_odo[ind_jus[0,1],it]
+                        d_ido[idr,it] = cm1 # ((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+
+                        #upstream col
+                        cm1 = self.d_ocol[ind_jus[0,0],it]
+                        #cm2 = self.d_ocol[ind_jus[0,1],it]
+                        d_icol[idr,it] = cm1 # ((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+                
+                        #upstream po
+                        cm1 = self.d_opo[ind_jus[0,0],it]
+                        #cm2 = self.d_opo[ind_jus[0,1],it]
+                        d_ipo[idr,it] = cm1 #((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+                
+                        #upstream pi
+                        cm1 = self.d_opi[ind_jus[0,0],it]
+                        #cm2 = self.d_opi[ind_jus[0,1],it]
+                        d_ipi[idr,it] = cm1 #((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+                
+                        #upstream no
+                        cm1 = self.d_ono[ind_jus[0,0],it]
+                        #cm2 = self.d_ono[ind_jus[0,1],it]
+                        d_ino[idr,it] = cm1 #((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+            
+                        #upstream na
+                        cm1 = self.d_ona[ind_jus[0,0],it]
+                        #cm2 = self.d_ona[ind_jus[0,1],it]
+                        d_ina[idr,it] = cm1 #((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+                
+                        #upstream ni
+                        #cm1 = self.d_oni[ind_jus[0,0],it]
+                        #cm2 = self.d_oni[ind_jus[0,1],it]
+                        #d_ini[idr,it] = ((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+
+                        #upstream nn
+                        cm1 = self.d_onn[ind_jus[0,0],it]
+                        #cm2 = self.d_onn[ind_jus[0,1],it]
+                        d_inn[idr,it] = cm1 #((qmr1*cm1) + (qmr2*cm2))/d_qmr[idr,it]
+                
+                
+                
         
                 if (ind_jus.size)==2:
             
